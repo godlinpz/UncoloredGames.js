@@ -3,7 +3,7 @@ import ClientInput from './ClientInput';
 class MousetInput extends ClientInput {
     constructor(options) {
         super({ ...options, 
-            listeners: {
+            canvasEventListeners: {
                 mousedown: this.onMouseDown.bind(this),
                 mouseup: this.onMouseUp.bind(this),
                 mousemove: this.onMouseUp.bind(this),
