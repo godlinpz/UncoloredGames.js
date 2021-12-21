@@ -28,6 +28,7 @@ class ClientInput {
         const listener = this.inputCanvasEventListeners[event];
         if(subsLeft === 0 && this.canvas && listener)
             this.canvas.removeEventListener(event, listener, false);
+        delete this.inputCanvasEventListeners[event];
     }
 
     handleEvent(event, e)
