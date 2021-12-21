@@ -2,8 +2,10 @@
 function pushEvent (me, event, sub, once) {
     const subs = me.__eventSubscribers || (me.__eventSubscribers = {});
     subs[event] || (subs[event] = {once:[], always: []});
-    subs[event][once ? 'once': 'always'].push(sub);
-    me.trigger('addedEventSubscriber', event, sub, once);
+    const eventSubs = subs[event];
+    eventSubs[once ? 'once': 'always'].push(sub);
+    me.trigger('addedEventSubscriber', event, sub, once, 
+        eventSubs.once.length + eventSubs.always.length);
 }
 
 export default {
@@ -27,7 +29,9 @@ export default {
                 const oldLength = eventSubs[type].length;
                 eventSubs[type] = eventSubs[type].filter((sub) => sub !== subToUnsubscribe);
                 if( oldLength !== eventSubs[type].length )
-                    this.trigger('removedEventSubscriber', event, subToUnsubscribe, type==='once');
+                    this.trigger('removedEventSubscriber', event, subToUnsubscribe, type==='once',
+                        eventSubs.once.length + eventSubs.always.length    
+                    );
             });
         }
 
@@ -40,6 +44,7 @@ export default {
         if (subs && subs[event]) {
             const eventSubs = subs[event];
             // вызываем одноразовые обработчики
+            // они имеют преимущетсво перед постоянными обработчиками
             eventSubs.once.forEach(call);
             // удаляем одноразовые обработчики
             eventSubs.once = [];
