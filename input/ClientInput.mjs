@@ -1,4 +1,9 @@
-import EventSourceMixin from '../EventSourceMixin';
+import EventSourceMixin from '../EventSourceMixin.mjs';
+
+function extractEventNameBase(event)
+{
+    return event.split('_')[0];
+}
 
 class ClientInput {
     constructor(options) {
@@ -12,26 +17,30 @@ class ClientInput {
         this.on('removedEventSubscriber', this.onRemovedEventSubscriber.bind(this));
     }
 
-    onAddedEventSubscriber(_, [event, sub, once, subsLeft])
+    onAddedEventSubscriber([event, sub, once, subsLeft])
     {
-        const eventListeners = this.canvasEventListeners[event];
-        if (eventListeners && subsLeft === 1 && this.canvas)
+        const baseEvent = extractEventNameBase(event);
+        const eventListener = this.canvasEventListeners[baseEvent];
+
+        if (eventListener && subsLeft === 1 && this.canvas)
         {
             // when new event type is introduced, add DOM event listener
-            const listener = this.domCanvasEventListeners[event] = e => this.handleDomEvent(event, e);
-            this.canvas.addEventListener(event, 
+            const listener = this.domCanvasEventListeners[baseEvent] = e => this.handleDomEvent(baseEvent, e);
+            this.canvas.addEventListener(baseEvent, 
                 listener, 
                 false);
         }
     }
 
-    onRemovedEventSubscriber(_, [event, sub, once, subsLeft])
+    onRemovedEventSubscriber([event, sub, once, subsLeft])
     {
-        const listener = this.domCanvasEventListeners[event];
+        const baseEvent = extractEventNameBase(event);
+        const listener = this.domCanvasEventListeners[baseEvent];
+
         if(subsLeft === 0 && this.canvas && listener)
             // when there are no more listeners for this event, remove DOM event listener
-            this.canvas.removeEventListener(event, listener, false);
-        delete this.domCanvasEventListeners[event];
+            this.canvas.removeEventListener(baseEvent, listener, false);
+        delete this.domCanvasEventListeners[baseEvent];
     }
 
     handleDomEvent(event, e)

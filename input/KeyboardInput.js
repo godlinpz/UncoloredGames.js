@@ -1,4 +1,4 @@
-import Input from './ClientInput';
+import Input from './ClientInput.mjs';
 
 class KeyboardInput extends Input {
     constructor(options) {
