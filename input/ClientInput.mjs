@@ -17,7 +17,7 @@ class ClientInput {
         this.on('removedEventSubscriber', this.onRemovedEventSubscriber.bind(this));
     }
 
-    onAddedEventSubscriber([event, sub, once, subsLeft])
+    onAddedEventSubscriber([{event}, subsLeft])
     {
         const baseEvent = extractEventNameBase(event);
         const eventListener = this.canvasEventListeners[baseEvent];
@@ -32,7 +32,7 @@ class ClientInput {
         }
     }
 
-    onRemovedEventSubscriber([event, sub, once, subsLeft])
+    onRemovedEventSubscriber([{event}, subsLeft])
     {
         const baseEvent = extractEventNameBase(event);
         const listener = this.domCanvasEventListeners[baseEvent];

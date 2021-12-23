@@ -1,43 +1,50 @@
 // hidden function
-function pushEvent (me, eventName, subscriber, once) {
-    const events = typeof eventName === 'string' ? {[eventName]: subscriber}: eventName;
-    const subs = me.__eventSubscribers;
+function pushEventHandler (me, eventName, handler, once, queued) {
+    const events = typeof eventName === 'string' 
+        ? [{event: eventName, handler, queued, once}]
+        : eventName;
+    const subs = me.__eventSourceData.subscribers;
 
-    for(let event in events) {
-        const sub = events[event];
+    for(let i = 0; i < events.length; ++i) {
+        const {event, once} = events[i];
         subs[event] || (subs[event] = {once:[], always: []});
         const eventSubs = subs[event];
-        eventSubs[once ? 'once': 'always'].push(sub);
-        me.trigger('addedEventSubscriber', event, sub, once, 
+        eventSubs[once ? 'once': 'always'].push(events[i]);
+        me.trigger('addedEventSubscriber', events[i], 
             eventSubs.once.length + eventSubs.always.length)
     };
 }
 
 export default {
-    __eventSubscribers: {},
-
-    on: function (event, callback = null) {
-        pushEvent(this, event, callback, false);
+    __eventSourceData: {
+        subscribers: {},
     },
 
-    once: function (event, callback = null) {
-        pushEvent(this, event, callback, true);
+    // Event can be either a string name of an event or an array of {event, handler} pairs
+    on: function (event, handler = null, queued = false) {
+        pushEventHandler(this, event, handler, false, queued);
     },
 
-    un: function (eventName, subToUnsubscribe = null) {
-        const events = typeof eventName === 'string' ? {eventName: subToUnsubscribe}: eventName;
-        const subs = this.__eventSubscribers;
+    once: function (event, handler = null, queued = false) {
+        pushEventHandler(this, event, handler, true, queued);
+    },
 
-        for(let event in events) {
+    un: function (event, handler = null) {
+        const events = typeof event === 'string' 
+            ? [{event, handler}]
+            : event;
+        const subs = this.__eventSourceData.subscribers;
+
+        for(let i = 0; i < events.length; ++i) {
+            const {event, handler} = events[i];
             if (subs && subs[event]) 
             {
-                const subToUn = events[event];
                 const eventSubs = subs[event];
                 ['once', 'always'].forEach(type => {
                     const oldLength = eventSubs[type].length;
-                    eventSubs[type] = eventSubs[type].filter((sub) => sub !== subToUn);
+                    eventSubs[type] = eventSubs[type].filter(({handler: hnd}) => hnd !== handler);
                     if( oldLength !== eventSubs[type].length )
-                        this.trigger('removedEventSubscriber', event, subToUn, type==='once',
+                        this.trigger('removedEventSubscriber', events[i],
                             eventSubs.once.length + eventSubs.always.length    
                         );
                 });
@@ -46,8 +53,8 @@ export default {
     },
 
     trigger: function (event, ...data) {
-        const subs = this.__eventSubscribers;
-        const call = (sub) => sub(data, event, this);
+        const subs = this.__eventSourceData.subscribers;
+        const call = (sub) => sub.handler(data, sub, this);
 
         if (subs && subs[event]) {
             const eventSubs = subs[event];

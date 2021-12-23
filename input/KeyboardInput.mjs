@@ -10,7 +10,6 @@ class KeyboardInput extends ClientInput {
                 keydown: this.onKeyDown.bind(this),
                 keyup: this.onKeyUp.bind(this),
             },
-
         });
     }
 
