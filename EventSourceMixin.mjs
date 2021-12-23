@@ -18,6 +18,7 @@ function pushEventHandler (me, eventName, handler, once, queued) {
 export default {
     __eventSourceData: {
         subscribers: {},
+        queue: [],
     },
 
     // Event can be either a string name of an event or an array of {event, handler} pairs
@@ -53,8 +54,19 @@ export default {
     },
 
     trigger: function (event, ...data) {
+        console.log('trigger', event, data);
+
         const subs = this.__eventSourceData.subscribers;
-        const call = (sub) => sub.handler(data, sub, this);
+        const call = (sub) => {
+            if (sub.queued)
+            {
+                this.__eventSourceData.queue.push(
+                    ()=> sub.handler(data, sub, this) 
+                );
+            }
+            else
+                sub.handler(data, sub, this);            
+        }
 
         if (subs && subs[event]) {
             const eventSubs = subs[event];
@@ -67,4 +79,11 @@ export default {
             eventSubs.always.forEach(call);
         }
     },
+
+    runEventQueue()
+    {
+        console.log('runEventQueue', this.__eventSourceData.queue);
+        this.__eventSourceData.queue.forEach(f => f());
+        this.__eventSourceData.queue = [];
+    }
 };

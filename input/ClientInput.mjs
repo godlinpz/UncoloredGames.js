@@ -21,11 +21,14 @@ class ClientInput {
     {
         const baseEvent = extractEventNameBase(event);
         const eventListener = this.canvasEventListeners[baseEvent];
+        const domListener = this.domCanvasEventListeners[baseEvent] 
 
-        if (eventListener && subsLeft === 1 && this.canvas)
+        if (!domListener && eventListener && subsLeft === 1 && this.canvas)
         {
+            console.log('adding DOM listener', event);
             // when new event type is introduced, add DOM event listener
-            const listener = this.domCanvasEventListeners[baseEvent] = e => this.handleDomEvent(baseEvent, e);
+            const listener = this.domCanvasEventListeners[baseEvent] 
+                = e => this.handleDomEvent(baseEvent, e);
             this.canvas.addEventListener(baseEvent, 
                 listener, 
                 false);
@@ -45,6 +48,7 @@ class ClientInput {
 
     handleDomEvent(event, e)
     {
+        console.log('handleDomEvent', event, e)
         this.canvasEventListeners[event](e);
         this.trigger(event, e);
     }

@@ -5,6 +5,8 @@ const ctx = canvas.getContext('2d');
 
 const keyboard = new KeyboardInput({canvas});
 
+let n = 0;
+
 const handlers = [
     {
         event: 'keydown_Space', 
@@ -26,7 +28,21 @@ const handlers = [
             // Removes listeners on enter
             keyboard.un(handlers);
         }
-
+    },
+    {
+        event: 'keyup_ArrowDown', 
+        queued: true,
+        handler: e => {
+            n++;
+            // console.log('ArrowDown', n);
+        }
+    },
+    {
+        event: 'keyup_ArrowUp',
+        handler: e => {
+            keyboard.runEventQueue();
+            // console.log('ArrowUp', n);
+        }
     },
 ];
 keyboard.on(handlers);

@@ -9,6 +9,9 @@
 </head>
 <body>
     <canvas id="game" tabindex="1" width="660" height="660"></canvas>
-    <script type="module" src="main.mjs"></script>
+    <!-- <script type="module" src="main.mjs"></script> -->
+    <script>
+        document.getElementById('game').addEventListener('keydown', e => console.log('DOC keydown'), false);
+    </script>
 </body>
 </html>
