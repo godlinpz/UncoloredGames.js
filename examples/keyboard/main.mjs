@@ -34,14 +34,14 @@ const handlers = [
         queued: true,
         handler: e => {
             n++;
-            // console.log('ArrowDown', n);
+            console.log('ArrowDown', n);
         }
     },
     {
         event: 'keyup_ArrowUp',
         handler: e => {
             keyboard.runEventQueue();
-            // console.log('ArrowUp', n);
+            console.log('ArrowUp', n);
         }
     },
 ];

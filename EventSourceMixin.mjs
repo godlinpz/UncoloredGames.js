@@ -54,7 +54,7 @@ export default {
     },
 
     trigger: function (event, ...data) {
-        console.log('trigger', event, data);
+        // console.log('trigger', event, data);
 
         const subs = this.__eventSourceData.subscribers;
         const call = (sub) => {
@@ -82,7 +82,7 @@ export default {
 
     runEventQueue()
     {
-        console.log('runEventQueue', this.__eventSourceData.queue);
+        // console.log('runEventQueue', this.__eventSourceData.queue);
         this.__eventSourceData.queue.forEach(f => f());
         this.__eventSourceData.queue = [];
     }
