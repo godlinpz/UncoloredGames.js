@@ -1,5 +1,7 @@
 // hidden function
 function pushEventHandler (me, eventName, handler, once, queued) {
+    if(!me.__eventSourceData) initDataStore(me);
+
     const events = typeof eventName === 'string' 
         ? [{event: eventName, handler, queued, once}]
         : eventName;
@@ -15,11 +17,15 @@ function pushEventHandler (me, eventName, handler, once, queued) {
     };
 }
 
-export default {
-    __eventSourceData: {
+function initDataStore(me)
+{
+    me.__eventSourceData = {
         subscribers: {},
         queue: [],
-    },
+    };
+}
+
+export default {
 
     // Event can be either a string name of an event or an array of {event, handler} pairs
     on: function (event, handler = null, queued = false) {
@@ -31,6 +37,8 @@ export default {
     },
 
     un: function (event, handler = null) {
+        if(!this.__eventSourceData) initDataStore(me);
+
         const events = typeof event === 'string' 
             ? [{event, handler}]
             : event;
@@ -55,6 +63,7 @@ export default {
 
     trigger: function (event, ...data) {
         // console.log('trigger', event, data);
+        if(!this.__eventSourceData) initDataStore(me);
 
         const subs = this.__eventSourceData.subscribers;
         const call = (sub) => {
@@ -82,6 +91,8 @@ export default {
 
     runEventQueue()
     {
+        if(!me.__eventSourceData) initDataStore(me);
+
         // console.log('runEventQueue', this.__eventSourceData.queue);
         this.__eventSourceData.queue.forEach(f => f());
         this.__eventSourceData.queue = [];
