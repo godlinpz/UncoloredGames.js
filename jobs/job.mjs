@@ -32,7 +32,7 @@ class Job
 
     finish()
     {
-        this.finished = false;
+        this.finished = true;
         this.trigger('finished');
     }
 
