@@ -9,11 +9,11 @@ function pushEventHandler (me, eventName, handler, once, queued) {
 
     for(let i = 0; i < events.length; ++i) {
         const {event, once} = events[i];
-        subs[event] || (subs[event] = {once:[], always: []});
+        subs[event] || (subs[event] = {once:[], permanent: []});
         const eventSubs = subs[event];
-        eventSubs[once ? 'once': 'always'].push(events[i]);
+        eventSubs[once ? 'once': 'permanent'].push(events[i]);
         me.trigger('addedEventSubscriber', events[i], 
-            eventSubs.once.length + eventSubs.always.length)
+            eventSubs.once.length + eventSubs.permanent.length)
     };
 }
 
@@ -28,15 +28,15 @@ function initDataStore(me)
 export default {
 
     // Event can be either a string name of an event or an array of {event, handler} pairs
-    on: function (event, handler = null, queued = false) {
+    on (event, handler = null, queued = false) {
         pushEventHandler(this, event, handler, false, queued);
     },
 
-    once: function (event, handler = null, queued = false) {
+    once (event, handler = null, queued = false) {
         pushEventHandler(this, event, handler, true, queued);
     },
 
-    un: function (event, handler = null) {
+    un (event, handler = null) {
         if(!this.__eventSourceData) initDataStore(this);
 
         const events = typeof event === 'string' 
@@ -49,19 +49,19 @@ export default {
             if (subs && subs[event]) 
             {
                 const eventSubs = subs[event];
-                ['once', 'always'].forEach(type => {
+                ['once', 'permanent'].forEach(type => {
                     const oldLength = eventSubs[type].length;
                     eventSubs[type] = eventSubs[type].filter(({handler: hnd}) => hnd !== handler);
                     if( oldLength !== eventSubs[type].length )
                         this.trigger('removedEventSubscriber', events[i],
-                            eventSubs.once.length + eventSubs.always.length    
+                            eventSubs.once.length + eventSubs.permanent.length    
                         );
                 });
             }
         }
     },
 
-    trigger: function (event, ...data) {
+    trigger (event, ...data) {
         // console.log('trigger', event, data);
         if(!this.__eventSourceData) initDataStore(this);
 
@@ -85,7 +85,7 @@ export default {
             // удаляем одноразовые обработчики
             eventSubs.once = [];
             // вызываем многоразовые обработчики
-            eventSubs.always.forEach(call);
+            eventSubs.permanent.forEach(call);
         }
     },
 
