@@ -13,8 +13,8 @@ class ClientInput {
         }, options);
 
         // custom event subscription handlers
-        this.on('addedEventSubscriber', this.onAddedEventSubscriber.bind(this));
-        this.on('removedEventSubscriber', this.onRemovedEventSubscriber.bind(this));
+        this.on('addedEventSubscriber', (...args) => this.onAddedEventSubscriber(...args));
+        this.on('removedEventSubscriber', (...args) => this.onRemovedEventSubscriber(...args));
     }
 
     onAddedEventSubscriber([{event}, subsLeft])

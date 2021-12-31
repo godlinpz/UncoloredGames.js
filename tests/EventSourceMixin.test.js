@@ -5,7 +5,7 @@ class EventSourceMixinTest {}
 Object.assign(EventSourceMixinTest.prototype, EventSourceMixin);
 
 
-describe('Test EventSourceMixin calls', () => {
+describe('Test EventSourceMixin', () => {
 
     function init()
     {
