@@ -39,6 +39,15 @@ describe('Client input', () => {
 
     });
 
+    test('adds DOM event listeners on subscribe using base name of an event', () => {
+        const {callback, ci} = init();
+        jest.spyOn(ci, 'onAddedEventSubscriber');
+
+        ci.on('test_t', callback);
+
+        expect(ci.canvas.addEventListener).toHaveBeenCalledWith("test", ci.domCanvasEventListeners['test'], false);
+    });
+
     test('removes DOM event listeners on unsubscribe', () => {
         const {callback, ci} = init();
         jest.spyOn(ci, 'onRemovedEventSubscriber');
