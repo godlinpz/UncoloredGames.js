@@ -5,8 +5,43 @@ class Jobs
 {
     constructor()
     {
-        this.globalTime = 0; 
-        this.jobs = [];
+        Object.assign(this, {
+            globalTime: 0,
+            jobs: [],
+            autoUpdateEnabled: false,
+            autoUpdateFrequency: 200,
+            autoUpdateTimer: null,
+            paused: false,
+            currentTime: 0,
+        })
+    }
+
+    enableAutoupdate(frequency)
+    {
+        if(frequency)
+            this.autoUpdateFrequency = frequency;
+
+        this.autoUpdateEnabled = true;
+        this.autoUpdateTimer = setInterval(() => this.updateTime((new Date()).getDate()))
+    }
+
+    disableAutoupdate()
+    {
+        this.autoUpdateEnabled = false;
+        clearInterval(this.autoUpdateTimer);
+        this.autoUpdateTimer = null;
+    }
+
+    pause()
+    {
+        this.paused = true;
+        this.trigger('paused');
+    }
+
+    unpause()
+    {
+        this.paused = false;
+        this.trigger('unpaused');
     }
 
     updateTime(time)
