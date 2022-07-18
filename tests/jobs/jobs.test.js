@@ -56,4 +56,19 @@ describe('Jobs calls', () => {
         expect(jobs.autoUpdateTimer).toBeFalsy();
     });
 
+    test('can disable autoupdate', () => {
+        const {callback, jobs} = init();
+
+        jobs.job(callback, 700);
+        jobs.job(callback, 400);
+        jobs.job(callback, 300);
+        jobs.job(callback, 200);
+        jobs.job(callback, 600);
+        jobs.job(callback, 800);
+        jobs.job(callback, 500);
+        jobs.job(callback, 100);
+        
+        expect(jobs.jobs.map(j => j.timeout)).toEqual([100, 200, 300, 400, 500, 600, 700, 800]);
+    });
+
 })

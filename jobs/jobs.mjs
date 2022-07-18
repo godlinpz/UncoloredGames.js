@@ -1,46 +1,62 @@
 import EventSourceMixin from "../EventSourceMixin.mjs";
 import Job from "./job.mjs";
+import { binarySearchInsert } from "../util/binarySearch.mjs";
+import getCurrentTimeDefault from "../util/getCurrentTimeDefault.mjs";
 
 class Jobs
 {
-    constructor()
+    constructor(getCurrentTime = getCurrentTimeDefault)
     {
         Object.assign(this, {
-            systemTime: 0, // real time
-            currentTime: 0, // internal time
-            acceleration: 1, // acceleration of internal time (1 = the same to system, 0.5 = half speed from system)
+            lastTickTime: 0, // last saved time stamp
+            jobTime: 0, // internal time, can be slowed, accelerated and paused
+            getCurrentTime, // default method to get system time
+            paused: false, // while in pause all jobs are paused
+            acceleration: 1, // acceleration of internal time (1 = the same to system, 0.5 = half speed from system, etc.)
             jobs: [],
-            autoUpdateEnabled: false,
-            autoUpdateFrequency: 33,
+            autoUpdateEnabled: false, // is the queue in self update mode
+            autoUpdateFrequency: 33, // frequency if using setTimeout
             autoUpdateTimer: null,
-            paused: false,
-        })
+            timeUpdaterFunc: this.timeUpdaterFuncDefault, // function for self updating timer
+            runAutoupdateBound: this.runAutoupdate.bind(this), 
+            jobHandlers: [
+                ['finished', this.onJobFinished.bind(this)],
+                ['pause', this.onJobPause.bind(this)],
+                ['unpause', this.onJobUnPause.bind(this)],
+                ['updated', this.onJobUpdated.bind(this)],
+            ]
+        });
+    }
+    
+    timeUpdaterFuncDefault(callback) {
+        this.autoUpdateTimer = setTimeout(() => callback(this.getCurrentTime()), this.autoUpdateFrequency);
+    }
+
+    runAutoupdate(time) {
+        if(this.autoUpdateEnabled) 
+        {
+            this.updateTime(time); 
+            this.timeUpdaterFunc(this.runAutoupdateBound);
+        }
+
     }
 
     // Time autoupdate can be performed using either setInterval or requestAnimationFrame
-    enableAutoupdate(frequency = 33, useRequestAnimationFrame = false, window = window)
+    enableAutoupdate(frequency = 33, timeUpdaterFunc = null)
     {
-        if(frequency)
-            this.autoUpdateFrequency = frequency;
-
         if(this.autoUpdateEnabled) 
             this.disableAutoupdate();
 
-        this.autoUpdateEnabled = true;
-        if(useRequestAnimationFrame && window && window.requestAnimationFrame) {
-            const autoUpdateFunc = time => {
-                if(this.autoUpdateFuncEnabled)
-                {
-                    this.updateTime(time);
-                    window.requestAnimationFrame(autoUpdateFunc);
-                }
-            };
-            window.requestAnimationFrame(autoUpdateFunc);
-        }
-        else
-            this.autoUpdateTimer = setInterval(() => this.updateTime((new Date()).getDate()), this.autoUpdateFrequency);
-    }
+        if(frequency)
+            this.autoUpdateFrequency = frequency;
 
+        if(timeUpdaterFunc)
+            this.timeUpdaterFunc = timeUpdaterFunc;
+
+        this.autoUpdateEnabled = true;
+
+        this.runAutoupdate(this.lastTickTime);
+    }
 
     disableAutoupdate()
     {
@@ -66,18 +82,36 @@ class Jobs
     {
         if(!this.paused)
         {
-            const delta = time - this.systemTime;
-            this.currentTime += delta * this.acceleration;
+            const delta = time - this.lastTickTime;
+            this.jobTime += delta * this.acceleration;
     
-            this.trigger('tick', this.currentTime, time);
+            this.trigger('tick', this.jobTime, time);
             this.run();
         }
-        this.systemTime = time; 
+        this.lastTickTime = time; 
     }
 
-    addTime(deltaTime)
+    run()
     {
-        this.currentTime += deltaTime;
+        const jobs = this.jobs;
+        const jobsToRun = [];
+        // Collecting timed out jobs. 
+        // Since jobs list is always sorted we can stop collecting on the first inappropriate job
+        for(let i = 0, done = false; i < jobs.length && !done; ++i)
+        {
+            const job = jobs[i];
+            done = job.getNextTimeToRun() > this.jobTime;
+            if(!done) jobsToRun.push(job);
+        }
+
+        // running timed out jobs
+        for(let i = 0; i < jobsToRun.length; ++i)
+            jobsToRun.updateTime(this.jobTime);
+    }
+
+    addJobTime(deltaTime)
+    {
+        this.jobTime += deltaTime;
     }
 
     setAcceleration(acceleration) 
@@ -85,22 +119,53 @@ class Jobs
         this.acceleration = acceleration;
     }
 
-    run()
-    {
-
-    }
-
     job(callback, timeout, times = 1)
     {
-        const job = new Job(this.currentTime, callback, timeout, times);
+        const job = new Job(this.jobTime, callback, timeout, times, 
+            () => this.jobTime);
         this.addJob(job);
     }
 
     addJob(job) 
     {
-        this.jobs.push(job);
+        this.jobHandlers.forEach((...handler) => job.on(...handler));
+        this.queueJob(job);
         this.trigger('jobAdded', job);
         return job;
+    }
+
+    queueJob(job)
+    {
+        job.updateTime(this.jobTime);
+        binarySearchInsert(this.jobs, job, j => j.getNextTimeToRun());
+        return job;
+    }
+
+    unQueueJob(job) 
+    {
+        this.jobs.splice(this.jobs.indexOf(job), 1);
+    }
+
+    onJobFinished(data, _, job)
+    {
+        this.unQueueJob(job);
+        this.jobHandlers.forEach((...handler) => job.un(...handler));
+    }
+
+    onJobPause(data, _, job)
+    {
+        this.unQueueJob(job);
+    }
+
+    onJobUnPause(data, _, job)
+    {
+        this.queueJob(job);    
+    }
+
+    onJobUpdated(data, _, job)
+    {
+        this.unQueueJob(job);
+        this.queueJob(job);    
     }
 
 }

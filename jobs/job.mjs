@@ -1,19 +1,23 @@
 import EventSourceMixin from "../EventSourceMixin.mjs";
+import getCurrentTimeDefault from "../util/getCurrentTimeDefault.mjs";
 
 class Job
 {
-    constructor(startTime, callback, timeout, times = 1)
+    constructor(firstRunTime, callback, timeout, times = 1, getCurrentTime = getCurrentTimeDefault)
     {
         Object.assign(this,
             {
-                startTime,
-                lastTime: startTime,
+                firstRunTime,
+                countdownStartTime: firstRunTime,
+                lastTickTime: 0,
                 callback,
                 timeout,
                 times,
                 timesLeft: times,
                 paused: false,
                 finished: false,
+                pausedAt: null,
+                getCurrentTime,
             }
         );
     }
@@ -21,12 +25,14 @@ class Job
     pause()
     {
         this.paused = true;
+        this.pausedAt = this.lastTickTime;
         this.trigger('paused');
     }
 
     unpause()
     {
         this.paused = false;
+        this.pausedAt = null;
         this.trigger('unpaused');
     }
 
@@ -36,25 +42,30 @@ class Job
         this.trigger('finished');
     }
 
-    getTimeLeft(currentTime)
+    getTimeLeft()
     {
-        return this.lastTime + this.timeout - currentTime;
+        return this.countdownStartTime 
+            + this.timeout 
+            - this.lastTickTime;
     }
 
     getNextTimeToRun()
     {
-        return this.lastTime + this.timeout;
+        return this.countdownStartTime + this.timeout;
     }
 
-    updateTime(currentTime)
+    updateTime(currentTime = this.getCurrentTime())
     {
-        if(!this.paused && !this.finished 
-           && (this.lastTime + this.timeout) <= currentTime)
+        const deltaTime = currentTime - this.lastTickTime;
+
+        if (this.paused)
+            this.countdownStartTime += this.deltaTime;
+        else if(!this.paused && !this.finished 
+           && (this.countdownStartTime + this.timeout) <= currentTime)
         {
             if(this.timesLeft)
             {
                 --this.timesLeft;
-                this.lastTime
                 this.callback();
                 this.trigger('updated');
             }
@@ -64,6 +75,7 @@ class Job
                 this.finish();
             }
         }
+        this.lastTickTime = currentTime;
 
         return this.timesLeft;
     }

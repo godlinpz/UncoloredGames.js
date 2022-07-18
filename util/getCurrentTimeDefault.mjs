@@ -1,0 +1,1 @@
+export default () => performance.now() | 0;

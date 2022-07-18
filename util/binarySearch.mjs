@@ -4,10 +4,8 @@ export function binarySearch (array, val, normalize = defaultNormalize)
 {
     let left = 0, right = array.length;
     const valNorm = normalize(val);
-    let i = 0;    
-    while(left < right && left < array.length-1 && right > 0 && i < 10) 
+    while(left < right && left < array.length-1) 
     {
-        i++;
         const mid = (left + right) >> 1;
         const midVal = normalize(array[mid]);
         if( midVal > valNorm )
