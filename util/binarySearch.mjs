@@ -1,6 +1,6 @@
 const defaultNormalize = (a) => Number(a);
 
-export default function (array, val, normalize = defaultNormalize) 
+export function binarySearch (array, val, normalize = defaultNormalize) 
 {
     let left = 0, right = array.length;
     const valNorm = normalize(val);
@@ -25,4 +25,11 @@ export default function (array, val, normalize = defaultNormalize)
         left + ((!array.length || valueIsFound || leftVal > valNorm) ? 0 : 1);
 
     return [valueIsFound, valuePosition];
+}
+
+export function binarySearchInsert (array, val, normalize = defaultNormalize) 
+{
+    const [isFound, pos] = binarySearch(array, val, normalize);
+    array.splice(pos, 0, val);
+    return array;
 }

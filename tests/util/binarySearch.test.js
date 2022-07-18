@@ -1,5 +1,4 @@
-import binarySearch from '../../util/binarySearch.mjs';
-// import jest from 'jest-mock';
+import { binarySearch, binarySearchInsert } from '../../util/binarySearch.mjs';
 
 describe('Binary search', () => {
     test('on empty array returns [false, 0]', () => {        
@@ -22,6 +21,17 @@ describe('Binary search', () => {
         expect(binarySearch([3, 4, 5, 6, 7], 5)).toEqual([true, 2]);
         expect(binarySearch([3, 4, 5, 6, 7], 3)).toEqual([true, 0]);
         expect(binarySearch([3, 4, 5, 6, 7], 7)).toEqual([true, 4]);
+    });
+
+    test('uses normalisation function and returns [true, index] if the value is in array', () => {        
+        expect(binarySearch([{id: 3}, {id: 4}, {id: 5}, {id: 6}, {id: 7}], {id: 5}, v => v.id)).toEqual([true, 2]);
+    });
+
+    test('inserts value at appropriate position', () => {        
+        expect(binarySearchInsert([3, 4, 5, 6, 7], 2)).toEqual([2, 3, 4, 5, 6, 7]);
+        expect(binarySearchInsert([3, 4, 5, 6, 7], 5)).toEqual([3, 4, 5, 5, 6, 7]);
+        expect(binarySearchInsert([3, 4, 5, 6, 7], 9)).toEqual([3, 4, 5, 6, 7, 9]);
+        expect(binarySearchInsert([3, 4, 5, 7, 8], 6)).toEqual([3, 4, 5, 6, 7, 8]);
     });
 
 });
