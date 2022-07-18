@@ -42,7 +42,7 @@ describe('Test EventSourceMixin', () => {
         expect(callback).not.toHaveBeenCalled();
     });
 
-    test('runs queued subscriber to an event', () => {
+    test('runs queued subscribers', () => {
         const {callback, es} = init();
         es.on('test', callback, true);
         es.trigger('test');
@@ -57,7 +57,7 @@ describe('Test EventSourceMixin', () => {
         expect(es.__eventSourceData.subscribers['test'].once.length).toBe(0);
     });
 
-    test('calls subscriber on event trigger', () => {
+    test('calls subscriber on an event trigger', () => {
         const {callback, es} = init();
         es.on('test', callback);
         es.trigger('test', 1);

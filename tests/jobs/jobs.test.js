@@ -20,7 +20,8 @@ describe('Jobs calls', () => {
         expect(jobs.autoUpdateEnabled).toBeFalsy();
         expect(jobs.autoUpdateTimer).toBeFalsy();
         expect(jobs.currentTime).toBe(0);
-        expect(jobs.autoUpdateFrequency).toBe(200);
+        expect(jobs.autoUpdateFrequency).toBe(33);
+        expect(jobs.acceleration).toBe(1);
 
     });
 
@@ -39,7 +40,7 @@ describe('Jobs calls', () => {
 
     test('can enable autoupdate', () => {
         const {jobs} = init();
-        jobs.enableAutoupdate(100);
+        jobs.enableAutoupdate(100, false, {});
 
         expect(jobs.autoUpdateEnabled).toBeTruthy();
         expect(jobs.autoUpdateTimer).toBeTruthy();
@@ -48,7 +49,7 @@ describe('Jobs calls', () => {
 
     test('can disable autoupdate', () => {
         const {jobs} = init();
-        jobs.enableAutoupdate(100);
+        jobs.enableAutoupdate(100, false, {});
         jobs.disableAutoupdate();
 
         expect(jobs.autoUpdateEnabled).toBeFalsy();

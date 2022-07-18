@@ -6,29 +6,47 @@ class Jobs
     constructor()
     {
         Object.assign(this, {
-            globalTime: 0,
+            systemTime: 0, // real time
+            currentTime: 0, // internal time
+            acceleration: 1, // acceleration of internal time (1 = the same to system, 0.5 = half speed from system)
             jobs: [],
             autoUpdateEnabled: false,
-            autoUpdateFrequency: 200,
+            autoUpdateFrequency: 33,
             autoUpdateTimer: null,
             paused: false,
-            currentTime: 0,
         })
     }
 
-    enableAutoupdate(frequency)
+    // Time autoupdate can be performed using either setInterval or requestAnimationFrame
+    enableAutoupdate(frequency = 33, useRequestAnimationFrame = false, window = window)
     {
         if(frequency)
             this.autoUpdateFrequency = frequency;
 
+        if(this.autoUpdateEnabled) 
+            this.disableAutoupdate();
+
         this.autoUpdateEnabled = true;
-        this.autoUpdateTimer = setInterval(() => this.updateTime((new Date()).getDate()))
+        if(useRequestAnimationFrame && window && window.requestAnimationFrame) {
+            const autoUpdateFunc = time => {
+                if(this.autoUpdateFuncEnabled)
+                {
+                    this.updateTime(time);
+                    window.requestAnimationFrame(autoUpdateFunc);
+                }
+            };
+            window.requestAnimationFrame(autoUpdateFunc);
+        }
+        else
+            this.autoUpdateTimer = setInterval(() => this.updateTime((new Date()).getDate()), this.autoUpdateFrequency);
     }
+
 
     disableAutoupdate()
     {
         this.autoUpdateEnabled = false;
-        clearInterval(this.autoUpdateTimer);
+        if(this.autoUpdateTimer) 
+            clearInterval(this.autoUpdateTimer);
         this.autoUpdateTimer = null;
     }
 
@@ -46,14 +64,25 @@ class Jobs
 
     updateTime(time)
     {
-        this.globalTime = time; 
-        this.trigger('timeUpdated', time);
-        this.run();
+        if(!this.paused)
+        {
+            const delta = time - this.systemTime;
+            this.currentTime += delta * this.acceleration;
+    
+            this.trigger('tick', this.currentTime, time);
+            this.run();
+        }
+        this.systemTime = time; 
     }
 
     addTime(deltaTime)
     {
-        this.updateTime(this.globalTime + deltaTime);
+        this.currentTime += deltaTime;
+    }
+
+    setAcceleration(acceleration) 
+    {
+        this.acceleration = acceleration;
     }
 
     run()
@@ -63,7 +92,12 @@ class Jobs
 
     job(callback, timeout, times = 1)
     {
-        const job = new Job(callback, timeout, times);
+        const job = new Job(this.currentTime, callback, timeout, times);
+        this.addJob(job);
+    }
+
+    addJob(job) 
+    {
         this.jobs.push(job);
         this.trigger('jobAdded', job);
         return job;

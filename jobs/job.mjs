@@ -46,7 +46,7 @@ class Job
         return this.lastTime + this.timeout;
     }
 
-    run(currentTime)
+    updateTime(currentTime)
     {
         if(!this.paused && !this.finished 
            && (this.lastTime + this.timeout) <= currentTime)
@@ -56,6 +56,7 @@ class Job
                 --this.timesLeft;
                 this.lastTime
                 this.callback();
+                this.trigger('updated');
             }
 
             if(!this.timesLeft)

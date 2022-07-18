@@ -62,7 +62,7 @@ describe('Mouse input', () => {
         expect(mi.isInside).toBe(false);
     });
 
-    test('remembers mouse is left the canvas', () => {
+    test('remembers mouse left the canvas', () => {
         const {mi} = init();
         mi.isInside = true;
         mi.handleDomEvent('mouseleave', {});

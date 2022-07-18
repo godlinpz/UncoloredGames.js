@@ -43,7 +43,7 @@ describe('Test Job calls', () => {
 
     test('runs callback when time is out and finishes if no more runs', () => {
         const {callback, job} = init();
-        const timesLeft = job.run(3);
+        const timesLeft = job.updateTime(3);
         expect(callback).toHaveBeenCalled();
         expect(job.finished).toBeTruthy();
         expect(job.timesLeft).toBe(0);
@@ -52,7 +52,7 @@ describe('Test Job calls', () => {
 
     test('doesn`t run until time is out', () => {
         const {callback, job} = init();
-        const timesLeft = job.run(2);
+        const timesLeft = job.updateTime(2);
         expect(callback).not.toHaveBeenCalled();
         expect(job.finished).toBeFalsy();
         expect(job.timesLeft).toBe(1);
