@@ -56,7 +56,7 @@ describe('Jobs calls', () => {
         expect(jobs.autoUpdateTimer).toBeFalsy();
     });
 
-    test('can disable autoupdate', () => {
+    test('sorts jobs by time when a new job is added', () => {
         const {callback, jobs} = init();
 
         jobs.job(callback, 700);

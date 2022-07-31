@@ -3,7 +3,7 @@ import getCurrentTimeDefault from "../util/getCurrentTimeDefault.mjs";
 
 class Job
 {
-    constructor(firstRunTime, callback, timeout, times = 1, getCurrentTime = getCurrentTimeDefault)
+    constructor(firstRunTime, callback, timeout = 0, times = 1, getCurrentTime = getCurrentTimeDefault)
     {
         Object.assign(this,
             {
