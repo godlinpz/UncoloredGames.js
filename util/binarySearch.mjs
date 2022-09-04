@@ -9,8 +9,8 @@ export function binarySearch (array, val, normalize = defaultNormalize)
         const mid = (left + right) >> 1;
         const midVal = normalize(array[mid]);
         if( midVal > valNorm )
-            right = mid + 1;
-        else if (midVal === valNorm)
+            right = mid;
+        else if (midVal === valNorm || left === right - 1)
             left = right = mid;
         else left = mid; 
         // console.log(left, mid, right);

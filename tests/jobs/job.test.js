@@ -33,7 +33,8 @@ describe('Test Job calls', () => {
 
     test('returns the time left before next run', () => {
         const {callback, job} = init();
-        expect(job.getTimeLeft(2)).toBe(1);
+        job.updateTime(2)
+        expect(job.getTimeLeft()).toBe(1);
     });
 
     test('returns the next time to run', () => {

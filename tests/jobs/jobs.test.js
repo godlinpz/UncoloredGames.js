@@ -19,7 +19,8 @@ describe('Jobs calls', () => {
         expect(jobs.paused).toBeFalsy();
         expect(jobs.autoUpdateEnabled).toBeFalsy();
         expect(jobs.autoUpdateTimer).toBeFalsy();
-        expect(jobs.currentTime).toBe(0);
+        expect(jobs.lastTickTime).toBe(0);
+        expect(jobs.jobTime).toBe(0);
         expect(jobs.autoUpdateFrequency).toBe(33);
         expect(jobs.acceleration).toBe(1);
 

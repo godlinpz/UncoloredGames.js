@@ -1,1 +1,1 @@
-export default () => performance.now() | 0;
+export default () => (globalThis.performance && globalThis.performance.now()) | 0;
