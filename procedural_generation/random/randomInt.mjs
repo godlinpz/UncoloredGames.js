@@ -1,0 +1,1 @@
+export default (min = 0, max = 100) => Math.random() * (max + 1 - min) | 0 + min;
