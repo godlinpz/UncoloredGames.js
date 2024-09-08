@@ -21,7 +21,7 @@ describe('Keyboard input', () => {
     test('triggers key down with button specified', () => {
         const {callback, ki} = init();
 
-        ki.on('keydown_Space', callback);
+        ki._events.on('keydown_Space', callback);
         ki.handleDomEvent('keydown', {code: 'Space'});
 
         expect(callback).toHaveBeenCalled();
@@ -30,7 +30,7 @@ describe('Keyboard input', () => {
     test('triggers key up with button specified', () => {
         const {callback, ki} = init();
 
-        ki.on('keyup_Space', callback);
+        ki._events.on('keyup_Space', callback);
         ki.handleDomEvent('keyup', {code: 'Space'});
 
         expect(callback).toHaveBeenCalled();

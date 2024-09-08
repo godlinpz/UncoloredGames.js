@@ -26,9 +26,9 @@ describe('Client input', () => {
         const {callback, ci} = init();
         jest.spyOn(ci, 'onAddedEventSubscriber');
 
-        ci.on('test', callback);
+        ci._events.on('test', callback);
         
-        expect(ci.__eventSourceData.subscribers['addedEventSubscriber'].permanent[0].event).toBe('addedEventSubscriber');
+        expect(ci._events.subscribers['addedEventSubscriber'].permanent[0].event).toBe('addedEventSubscriber');
         expect(ci.onAddedEventSubscriber).toHaveBeenCalledWith(
             [ expect.objectContaining({ event: 'test' }), 1],
             expect.anything(),
@@ -43,7 +43,7 @@ describe('Client input', () => {
         const {callback, ci} = init();
         jest.spyOn(ci, 'onAddedEventSubscriber');
 
-        ci.on('test_t', callback);
+        ci._events.on('test_t', callback);
 
         expect(ci.canvas.addEventListener).toHaveBeenCalledWith("test", ci.domCanvasEventListeners['test'], false);
     });
@@ -52,14 +52,14 @@ describe('Client input', () => {
         const {callback, ci} = init();
         jest.spyOn(ci, 'onRemovedEventSubscriber');
 
-        ci.on('test', callback);
+        ci._events.on('test', callback);
         
         const listener = ci.domCanvasEventListeners['test'];
 
-        ci.un('test', callback);
+        ci._events.un('test', callback);
 
         
-        expect(ci.__eventSourceData.subscribers['removedEventSubscriber'].permanent[0].event).toBe('removedEventSubscriber');
+        expect(ci._events.subscribers['removedEventSubscriber'].permanent[0].event).toBe('removedEventSubscriber');
         expect(ci.onRemovedEventSubscriber).toHaveBeenCalledWith(
             [ expect.objectContaining({ event: 'test' }), 0],
             expect.anything(),
@@ -74,7 +74,7 @@ describe('Client input', () => {
         const params = {};
         jest.spyOn(ci, 'onRemovedEventSubscriber');
 
-        ci.on('test', callback);
+        ci._events.on('test', callback);
         ci.domCanvasEventListeners['test'](params);
         
         expect(ci.canvasEventListeners['test']).toHaveBeenCalledWith(params);

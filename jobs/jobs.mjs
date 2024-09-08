@@ -1,4 +1,4 @@
-import EventSourceMixin from "../EventSourceMixin.mjs";
+import EventSource from '../util/EventSource.mjs';
 import Job from "./job.mjs";
 import { binarySearchInsert } from "../util/binarySearch.mjs";
 import getCurrentTimeDefault from "../util/getCurrentTimeDefault.mjs";
@@ -26,6 +26,8 @@ class Jobs
                 ['updated', this.onJobUpdated.bind(this)],
             ]
         });
+
+        EventSource.createEventSource(this);
     }
     
     timeUpdaterFuncDefault(callback) {
@@ -69,13 +71,13 @@ class Jobs
     pause()
     {
         this.paused = true;
-        this.trigger('paused');
+        this._events.trigger('paused');
     }
 
     unpause()
     {
         this.paused = false;
-        this.trigger('unpaused');
+        this._events.trigger('unpaused');
     }
 
     updateTime(time)
@@ -85,7 +87,7 @@ class Jobs
             const delta = time - this.lastTickTime;
             this.jobTime += delta * this.acceleration;
     
-            this.trigger('tick', this.jobTime, time);
+            this._events.trigger('tick', this.jobTime, time);
             this.run();
         }
         this.lastTickTime = time; 
@@ -128,9 +130,9 @@ class Jobs
 
     addJob(job) 
     {
-        this.jobHandlers.forEach((...handler) => job.on(...handler));
+        this.jobHandlers.forEach((...handler) => job._events.on(...handler));
         this.queueJob(job);
-        this.trigger('jobAdded', job);
+        this._events.trigger('jobAdded', job);
         return job;
     }
 
@@ -149,7 +151,7 @@ class Jobs
     onJobFinished(data, _, job)
     {
         this.unQueueJob(job);
-        this.jobHandlers.forEach((...handler) => job.un(...handler));
+        this.jobHandlers.forEach((...handler) => job._events.un(...handler));
     }
 
     onJobPause(data, _, job)
@@ -169,7 +171,5 @@ class Jobs
     }
 
 }
-
-Object.assign(Jobs.prototype, EventSourceMixin);
 
 export default Jobs;

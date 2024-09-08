@@ -1,4 +1,4 @@
-import EventSourceMixin from "../EventSourceMixin.mjs";
+import EventSource from '../util/EventSource.mjs';
 import getCurrentTimeDefault from "../util/getCurrentTimeDefault.mjs";
 
 class Job
@@ -20,26 +20,27 @@ class Job
                 getCurrentTime,
             }
         );
+        EventSource.createEventSource(this);
     }
 
     pause()
     {
         this.paused = true;
         this.pausedAt = this.lastTickTime;
-        this.trigger('paused');
+        this._events.trigger('paused');
     }
 
     unpause()
     {
         this.paused = false;
         this.pausedAt = null;
-        this.trigger('unpaused');
+        this._events.trigger('unpaused');
     }
 
     finish()
     {
         this.finished = true;
-        this.trigger('finished');
+        this._events.trigger('finished');
     }
 
     getTimeLeft()
@@ -59,7 +60,7 @@ class Job
         const deltaTime = currentTime - this.lastTickTime;
 
         if (this.paused)
-            this.countdownStartTime += this.deltaTime;
+            this.countdownStartTime += deltaTime;
         else if(!this.paused && !this.finished 
            && (this.countdownStartTime + this.timeout) <= currentTime)
         {
@@ -67,7 +68,7 @@ class Job
             {
                 --this.timesLeft;
                 this.callback();
-                this.trigger('updated');
+                this._events.trigger('updated');
             }
 
             if(!this.timesLeft)
@@ -80,7 +81,5 @@ class Job
         return this.timesLeft;
     }
 }
-
-Object.assign(Job.prototype, EventSourceMixin);
 
 export default Job;

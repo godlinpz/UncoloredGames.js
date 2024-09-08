@@ -21,7 +21,7 @@ describe('Mouse input', () => {
     test('triggers mouse down with button specified', () => {
         const {callback, mi} = init();
 
-        mi.on('mousedown_left', callback);
+        mi._events.on('mousedown_left', callback);
         mi.handleDomEvent('mousedown', {button: 0});
 
         expect(callback).toHaveBeenCalled();
@@ -30,7 +30,7 @@ describe('Mouse input', () => {
     test('triggers mouse up with button specified', () => {
         const {callback, mi} = init();
 
-        mi.on('mouseup_left', callback);
+        mi._events.on('mouseup_left', callback);
         mi.handleDomEvent('mouseup', {button: 0});
 
         expect(callback).toHaveBeenCalled();

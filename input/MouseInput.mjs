@@ -22,12 +22,12 @@ class MousetInput extends ClientInput {
 
     onMouseDown(e) {
         const code = this.mouseButtons[e.button];
-        if (code) this.trigger(`mousedown_${code}`);
+        if (code) this._events.trigger(`mousedown_${code}`);
     }
 
     onMouseUp(e) {
         const code = this.mouseButtons[e.button];
-        if (code) this.trigger(`mouseup_${code}`);
+        if (code) this._events.trigger(`mouseup_${code}`);
     }
 
     onMouseMove(e) {

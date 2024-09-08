@@ -15,12 +15,12 @@ class KeyboardInput extends ClientInput {
 
     onKeyDown(e) {
         this.keysPressed.add(e.code);
-        this.trigger(`keydown_${e.code}`, e);
+        this._events.trigger(`keydown_${e.code}`, e);
     }
 
     onKeyUp(e) {
         this.keysPressed.delete(e.code);
-        this.trigger(`keyup_${e.code}`, e);
+        this._events.trigger(`keyup_${e.code}`, e);
     }
 }
 

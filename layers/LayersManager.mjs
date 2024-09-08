@@ -1,10 +1,11 @@
-import EventSourceMixin from "../EventSourceMixin.mjs";
+import EventSource from "../util/EventSource.mjs";
 
 class LayersManager 
 {
     constructor() 
     {
         this.layers = [];
+        EventSource.createEventSource(this);
     }
 
     findLayerByName(name)
@@ -16,7 +17,7 @@ class LayersManager
     {
         this.layers.splice(pos, 0, layer);
         layer.onAdd && layer.onAdd(pos);
-        this.trigger('added', layer, pos);
+        this._events.trigger('added', layer, pos);
         this.onOrderChanged(pos);
     }
 
@@ -33,7 +34,7 @@ class LayersManager
         {
             this.layers.splice(pos, 1);
             layer.onRemoved && layer.onRemoved(pos);
-            this.trigger('removed', layer, pos);
+            this._events.trigger('removed', layer, pos);
             this.onOrderChanged(pos);
         }
     }
@@ -42,7 +43,7 @@ class LayersManager
         for (let i = posFrom; i <= posTo; ++i)
             this.layers[i].onOrderChanged && this.layers[i].onOrderChanged(i);
 
-        this.trigger('order-changed', posFrom, posTo);
+        this._events.trigger('order-changed', posFrom, posTo);
     }
 
     getLayerIndex(layer) 
@@ -80,6 +81,7 @@ class LayersManager
         this.move(pos, pos-1);
     }
 
+    // remove empty elements from layers
     compact()
     {
         const layers = [];
@@ -116,7 +118,5 @@ class LayersManager
         };
     }
 }
-
-Object.assign(LayersManager.prototype, EventSourceMixin);
 
 export default LayersManager;

@@ -1,35 +1,35 @@
-import EventSourceMixin from '../EventSourceMixin.mjs';
+import EventSource from '../util/EventSource.mjs';
 
-function extractEventNameBase(event)
-{
-    return event.split('_')[0];
-}
+const extractEventNameBase = (event) => event.split('_')[0];
 
 class ClientInput {
     constructor(options) {
         Object.assign(this, {
             canvasEventListeners: {}, // defined by input handler class
             domCanvasEventListeners: {}, // is used to remove listener from DOM when it is no longer needed
+            queued: false, // this flag is used to defines if the events should be queued instead of triggered immediately
         }, options);
 
+        EventSource.createEventSource(this);
+
         // custom event subscription handlers
-        this.on('addedEventSubscriber', (...args) => this.onAddedEventSubscriber(...args));
-        this.on('removedEventSubscriber', (...args) => this.onRemovedEventSubscriber(...args));
+        this._events.on('addedEventSubscriber', (...args) => this.onAddedEventSubscriber(...args));
+        this._events.on('removedEventSubscriber', (...args) => this.onRemovedEventSubscriber(...args));
     }
 
     onAddedEventSubscriber([{event}, subsLeft])
     {
-        const baseEvent = extractEventNameBase(event);
-        const eventListener = this.canvasEventListeners[baseEvent];
-        const domListener = this.domCanvasEventListeners[baseEvent] 
+        const domEvent = extractEventNameBase(event);
+        const eventListener = this.canvasEventListeners[domEvent];
+        const domListener = this.domCanvasEventListeners[domEvent] 
 
         if (!domListener && eventListener && subsLeft === 1 && this.canvas)
         {
             // console.log('adding DOM listener', event);
             // when new event type is introduced, add DOM event listener
-            const listener = this.domCanvasEventListeners[baseEvent] 
-                = e => this.handleDomEvent(baseEvent, e);
-            this.canvas.addEventListener(baseEvent, 
+            const listener = this.domCanvasEventListeners[domEvent] 
+                = e => this.handleDomEvent(domEvent, e);
+            this.canvas.addEventListener(domEvent, 
                 listener, 
                 false);
         }
@@ -37,23 +37,21 @@ class ClientInput {
 
     onRemovedEventSubscriber([{event}, subsLeft])
     {
-        const baseEvent = extractEventNameBase(event);
-        const listener = this.domCanvasEventListeners[baseEvent];
+        const domEvent = extractEventNameBase(event);
+        const listener = this.domCanvasEventListeners[domEvent];
 
         if(subsLeft === 0 && this.canvas && listener)
             // when there are no more listeners for this event, remove DOM event listener
-            this.canvas.removeEventListener(baseEvent, listener, false);
-        delete this.domCanvasEventListeners[baseEvent];
+            this.canvas.removeEventListener(domEvent, listener, false);
+        delete this.domCanvasEventListeners[domEvent];
     }
 
-    handleDomEvent(event, e)
+    handleDomEvent(domEvent, e)
     {
-        // console.log('handleDomEvent', event, e)
-        this.canvasEventListeners[event](e);
-        this.trigger(event, e);
+        // console.log('handleDomEvent', domEvent, e)
+        this.canvasEventListeners[domEvent](e);
+        this._events.trigger(domEvent, e);
     }
 }
-
-Object.assign(ClientInput.prototype, EventSourceMixin);
 
 export default ClientInput;
