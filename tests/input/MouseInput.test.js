@@ -1,4 +1,4 @@
-import MouseInput from '../../input/MouseInput.mjs';
+import MouseInput from '../../src/input/MouseInput.mjs';
 import jest from 'jest-mock';
 
 

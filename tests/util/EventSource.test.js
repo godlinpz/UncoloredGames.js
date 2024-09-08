@@ -1,4 +1,4 @@
-import EventSource from '../../util/EventSource.mjs';
+import EventSource from '../../src/util/EventSource.mjs';
 import { jest } from '@jest/globals';
 import jestMock from 'jest-mock';
 
@@ -19,7 +19,7 @@ describe('Test EventSource', () => {
     test('adds permanent subscriber to an event', () => {
         es.on('test', callback);
         expect(es.subscribers['test'].permanent[0]).toEqual({
-            event: 'test', handler: callback, queue: false, once: false, handlerGroupId: null,
+            event: 'test', handler: callback, queue: '', once: false, handlerGroupId: null,
         });
     });
 

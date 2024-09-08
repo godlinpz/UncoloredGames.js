@@ -1,4 +1,4 @@
-import LayersManager from "../../layers/LayersManager.mjs";
+import LayersManager from "../../src/layers/LayersManager.mjs";
 import jest from 'jest-mock';
 
 describe('Layers Manager', () => {

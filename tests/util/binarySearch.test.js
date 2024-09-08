@@ -1,4 +1,4 @@
-import { binarySearch, binarySearchInsert } from '../../util/binarySearch.mjs';
+import { binarySearch, binarySearchInsert } from '../../src/util/binarySearch.mjs';
 
 describe('Binary search', () => {
     test('on empty array returns [false, 0]', () => {        

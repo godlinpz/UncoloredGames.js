@@ -1,4 +1,4 @@
-import Job from '../../jobs/job.mjs';
+import Job from '../../src/jobs/job.mjs';
 import jest from 'jest-mock';
 
 describe('Test Job calls', () => {

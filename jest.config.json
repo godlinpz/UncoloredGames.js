@@ -1,0 +1,4 @@
+{
+    "roots": ["<rootDir>/src/", "<rootDir>/tests/"],
+    "verbose": true
+}

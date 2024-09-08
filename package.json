@@ -9,7 +9,6 @@
   "scripts": {
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest"
   },
-  "jest": {},
   "devDependencies": {
     "@babel/plugin-transform-modules-commonjs": "^7.16.5",
     "@babel/preset-env": "^7.16.5",

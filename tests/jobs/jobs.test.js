@@ -1,5 +1,5 @@
 
-import Jobs from '../../jobs/jobs.mjs';
+import Jobs from '../../src/jobs/jobs.mjs';
 import jest from 'jest-mock';
 
 describe('Jobs calls', () => {

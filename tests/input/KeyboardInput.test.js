@@ -1,4 +1,4 @@
-import KeyboardInput from '../../input/KeyboardInput.mjs';
+import KeyboardInput from '../../src/input/KeyboardInput.mjs';
 import jest from 'jest-mock';
 
 

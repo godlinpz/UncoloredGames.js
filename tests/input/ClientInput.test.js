@@ -1,4 +1,4 @@
-import ClientInput from '../../input/ClientInput.mjs';
+import ClientInput from '../../src/input/ClientInput.mjs';
 import jest from 'jest-mock';
 
 
