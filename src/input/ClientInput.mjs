@@ -10,7 +10,7 @@ class ClientInput {
             queued: false, // this flag is used to defines if the events should be queued instead of triggered immediately
         }, options);
 
-        EventSource.createEventSource(this);
+        EventSource.createEventSource(this, options.queues || {});
 
         // custom event subscription handlers
         this._events.on('addedEventSubscriber', (...args) => this.onAddedEventSubscriber(...args));

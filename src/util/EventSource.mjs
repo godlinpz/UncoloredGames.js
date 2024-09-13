@@ -1,8 +1,8 @@
 class EventSource {
-    constructor (target) {
+    constructor (target, queues = {}) {
         this.target = target;
         this.subscribers = {};
-        this.queues = {};
+        this.queues = queues;
     }
 
     pushEventHandler (eventName, handler, handlerGroupId, once, queue) {
@@ -31,7 +31,7 @@ class EventSource {
         this.pushEventHandler(event, handler, handlerGroupId, false, queue);
     }
 
-    once (event, handler = null, handlerGroupId = null, queue = false) {
+    once (event, handler = null, handlerGroupId = null, queue = '') {
         this.pushEventHandler(event, handler, handlerGroupId, true, queue);
     }
 
@@ -100,10 +100,14 @@ class EventSource {
 
         this.queues[queue] = this.queues[queue].slice(number);
     }
+
+    popEvent(queue = 'default') {
+        runEventQueue(queue, 1);
+    }
 };
 
 EventSource.isEventSource = (target) => target._events instanceof EventSource;
 EventSource.getEventSource = (target) => target._events;
-EventSource.createEventSource = (target) => target._events = new EventSource(target);
+EventSource.createEventSource = (...args) => target._events = new EventSource(...args);
 
 export default EventSource;

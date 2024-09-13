@@ -26,7 +26,7 @@ describe('Test EventSource', () => {
     test('adds one-off subscriber to an event', () => {
         es.once('test', callback);
         expect(es.subscribers['test'].once[0]).toEqual({
-            event: 'test', handler: callback, queue: false, once: true, handlerGroupId: null,
+            event: 'test', handler: callback, queue: '', once: true, handlerGroupId: null,
         });
     });
 

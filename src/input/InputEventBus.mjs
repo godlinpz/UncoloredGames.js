@@ -7,21 +7,13 @@ let busId = 1000;
 export default class InputEventBus {
     constructor(options) {
         this.id = `inputBus${busId++}`;
+        const defaultQueue = [];
+        const queuesInit = { default: defaultQueue };
         
-        if(options._events) {
-            this._events = options._events;
-        } else {
-            EventSource.createEventSource(this);
-        }
+        EventSource.createEventSource(this, queuesInit);
 
-        if (options.keyboard) {
-            this.keyboard = new KeyboardInput();
-            this.keyboard._events.on('any', this.handleEvent.bind(this), this.id);
-        }
-        if (options.mouse) {
-            this.mouse = new MousetInput();
-            this.mouse._events.on('any', this.handleEvent.bind(this), this.id);
-        }
+        this.keyboard = new KeyboardInput({ queues: queuesInit });
+        this.mouse = new MousetInput({ queues: queuesInit });
     }
 
     handleEvent(...args) {
