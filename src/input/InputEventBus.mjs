@@ -2,32 +2,11 @@ import EventSource from '../util/EventSource.mjs';
 import KeyboardInput from './KeyboardInput.mjs';
 import MousetInput from './MouseInput.mjs';
 
-let busId = 1000; 
-
-export default class InputEventBus {
-    constructor(options) {
-        this.id = `inputBus${busId++}`;
-        const defaultQueue = [];
-        const queuesInit = { default: defaultQueue };
+export default class InputEventBus extends EventSource{
+    constructor(options = {}, target = null) {
+        super(target, { [options.queueName || 'default']: [] });
         
-        EventSource.createEventSource(this, queuesInit);
-
-        this.keyboard = new KeyboardInput({ queues: queuesInit });
-        this.mouse = new MousetInput({ queues: queuesInit });
-    }
-
-    handleEvent(...args) {
-        console.log(args);
-    }
-
-    destroy() {
-        if (this.keyboard) {
-            this.keyboard._events.un('any', null, this.id);
-            delete this.keyboard;
-        }
-        if (this.mouse) {
-            this.mouse._events.un('any', null, this.id);
-            delete this.mouse;
-        }
+        this.keyboard = new KeyboardInput({ queues: this.queues, ...options.keyboard });
+        this.mouse = new MousetInput({ queues: this.queues, ...options.mouse });
     }
 }

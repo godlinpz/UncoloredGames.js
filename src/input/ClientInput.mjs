@@ -7,7 +7,6 @@ class ClientInput {
         Object.assign(this, {
             canvasEventListeners: {}, // defined by input handler class
             domCanvasEventListeners: {}, // is used to remove listener from DOM when it is no longer needed
-            queued: false, // this flag is used to defines if the events should be queued instead of triggered immediately
         }, options);
 
         EventSource.createEventSource(this, options.queues || {});

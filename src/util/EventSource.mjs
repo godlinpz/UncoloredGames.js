@@ -6,24 +6,22 @@ class EventSource {
     }
 
     pushEventHandler (eventName, handler, handlerGroupId, once, queue) {
-        if (handler || handlerGroupId) {
-            const events = typeof eventName === 'string' 
-                ? [{event: eventName, handler, handlerGroupId, queue, once}]
-                : eventName;
-            const subs = this.subscribers;
+        const events = typeof eventName === 'string' 
+            ? [{event: eventName, handler, handlerGroupId, queue, once}]
+            : eventName;
+        const subs = this.subscribers;
     
+        for(let i = 0; i < events.length; ++i) {
+            const {event, once, queue} = events[i];
             if (queue && !this.queues[queue]) 
                 this.queues[queue] = [];
-    
-            for(let i = 0; i < events.length; ++i) {
-                const {event, once} = events[i];
-                subs[event] || (subs[event] = {once:[], permanent: []});
-                const eventSubs = subs[event];
-                eventSubs[once ? 'once': 'permanent'].push(events[i]);
-                this.trigger('addedEventSubscriber', events[i], 
-                    eventSubs.once.length + eventSubs.permanent.length)
-            };
-        }
+
+            subs[event] || (subs[event] = {once:[], permanent: []});
+            const eventSubs = subs[event];
+            eventSubs[once ? 'once': 'permanent'].push(events[i]);
+            this.trigger('addedEventSubscriber', events[i], 
+                eventSubs.once.length + eventSubs.permanent.length)
+        };
     }
 
     // Event can be either a string name of an event or an array of {event, handler} pairs
@@ -102,12 +100,12 @@ class EventSource {
     }
 
     popEvent(queue = 'default') {
-        runEventQueue(queue, 1);
+        this.runEventQueue(queue, 1);
     }
 };
 
 EventSource.isEventSource = (target) => target._events instanceof EventSource;
 EventSource.getEventSource = (target) => target._events;
-EventSource.createEventSource = (...args) => target._events = new EventSource(...args);
+EventSource.createEventSource = (target, ...args) => target._events = new EventSource(target, ...args);
 
 export default EventSource;
